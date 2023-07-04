@@ -12,6 +12,7 @@ from core.constants.settings import BG_COLOR, WIN_RES
 from core.window.window import Window
 from render.shader_program.shader_program import ShaderProgram
 from render.scene.scene import Scene
+from player.player import Player
 
 # Libraries
 import moderngl as mg
@@ -48,6 +49,9 @@ class Engine:
         # Clock
         self.clock = pg.time.Clock()
 
+        # Player
+        self.player = Player(app=self)
+
         # Shaders and scene
         self.shader_program = ShaderProgram(app=self)
         self.scene = Scene(app=self)
@@ -56,6 +60,7 @@ class Engine:
         """
         Updates the window and the clock
         """
+        self.player.update()
         self.shader_program.update()
         self.scene.update()
 

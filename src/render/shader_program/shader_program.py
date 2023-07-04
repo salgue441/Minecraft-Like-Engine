@@ -5,8 +5,12 @@
 @version 1.0
 @date 2023-07-04
 """
+# Project files
 from core.constants.settings import SHADERS_PATH
+
+# Libraries
 import moderngl as mg
+import glm
 
 
 class ShaderProgram:
@@ -17,6 +21,7 @@ class ShaderProgram:
         """
         self.app = app
         self.ctx = app.ctx
+        self.player = app.player
 
         # Shaders
         self.quad = self.get_program(shader_name="quad")
@@ -41,7 +46,14 @@ class ShaderProgram:
         )
 
     def set_uniforms_on_init(self) -> None:
-        pass
+        """
+        Sets the uniforms on init
+        """
+        self.quad["m_proj"].write(self.player.m_projection)
+        self.quad["m_model"].write(glm.mat4())
 
     def update(self) -> None:
-        pass
+        """
+        Updates the shader program
+        """
+        self.quad['m_view'].write(self.player.m_view)
