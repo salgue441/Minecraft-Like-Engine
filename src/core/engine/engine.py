@@ -7,11 +7,14 @@
 @date 2023-07-04
 """
 
+# Project files
 from core.constants.settings import BG_COLOR, WIN_RES
 from core.window.window import Window
+from render.shader_program.shader_program import ShaderProgram
+
+# Libraries
 import moderngl as mg
 import pygame as pg
-import sys
 
 """
 @brief Main engine class for the game.
@@ -44,10 +47,15 @@ class Engine:
         # Clock
         self.clock = pg.time.Clock()
 
+        # Shaders
+        self.shader_program = ShaderProgram(app=self)
+
     def update(self) -> None:
         """
         Updates the window and the clock
         """
+        self.shader_program.update()
+
         self.delta_time = self.clock.tick()
         self.time = pg.time.get_ticks() * 0.001
         pg.display.set_caption(f"FPS: {self.clock.get_fps():.2f}")
