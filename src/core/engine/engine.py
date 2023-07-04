@@ -11,6 +11,7 @@
 from core.constants.settings import BG_COLOR, WIN_RES
 from core.window.window import Window
 from render.shader_program.shader_program import ShaderProgram
+from render.scene.scene import Scene
 
 # Libraries
 import moderngl as mg
@@ -47,14 +48,16 @@ class Engine:
         # Clock
         self.clock = pg.time.Clock()
 
-        # Shaders
+        # Shaders and scene
         self.shader_program = ShaderProgram(app=self)
+        self.scene = Scene(app=self)
 
     def update(self) -> None:
         """
         Updates the window and the clock
         """
         self.shader_program.update()
+        self.scene.update()
 
         self.delta_time = self.clock.tick()
         self.time = pg.time.get_ticks() * 0.001
@@ -65,6 +68,7 @@ class Engine:
         Renders content to the window
         """
         self.ctx.clear(color=BG_COLOR)
+        self.scene.render()
         self.window.clear_window()
 
     def handle_events(self) -> None:

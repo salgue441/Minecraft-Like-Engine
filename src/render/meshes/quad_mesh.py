@@ -6,8 +6,7 @@
 @date 2023-07-04
 """
 import numpy as np
-from core.constants.settings import BG_COLOR, WIN_RES
-from meshes.base_mesh import BaseMesh
+from render.meshes.base_mesh import BaseMesh
 
 
 class QuadMesh(BaseMesh):
