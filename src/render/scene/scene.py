@@ -7,6 +7,7 @@
 """
 
 from render.meshes.quad_mesh import QuadMesh
+from render.world_objects.chunk import Chunk
 
 
 class Scene:
@@ -16,7 +17,7 @@ class Scene:
         :param app: The main application
         """
         self.app = app
-        self.quad = QuadMesh(self.app)
+        self.chunk = Chunk(self.app)
 
     def update(self) -> None:
         pass
@@ -25,4 +26,4 @@ class Scene:
         """
         Renders the scene.
         """
-        self.quad.render()
+        self.chunk.render()

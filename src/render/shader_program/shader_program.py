@@ -24,7 +24,7 @@ class ShaderProgram:
         self.player = app.player
 
         # Shaders
-        self.quad = self.get_program(shader_name="quad")
+        self.chunk = self.get_program(shader_name="chunk")
 
         # Uniforms
         self.set_uniforms_on_init()
@@ -49,11 +49,11 @@ class ShaderProgram:
         """
         Sets the uniforms on init
         """
-        self.quad["m_proj"].write(self.player.m_projection)
-        self.quad["m_model"].write(glm.mat4())
+        self.chunk["m_proj"].write(self.player.m_projection)
+        self.chunk["m_model"].write(glm.mat4())
 
     def update(self) -> None:
         """
         Updates the shader program
         """
-        self.quad['m_view'].write(self.player.m_view)
+        self.chunk["m_view"].write(self.player.m_view)

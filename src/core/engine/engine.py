@@ -49,6 +49,10 @@ class Engine:
         # Clock
         self.clock = pg.time.Clock()
 
+        # Mouse overflow
+        pg.event.set_grab(True)
+        pg.mouse.set_visible(False)
+
         # Player
         self.player = Player(app=self)
 
