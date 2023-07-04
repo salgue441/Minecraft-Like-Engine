@@ -1,4 +1,3 @@
-from settings import WIN_RES
 from core.engine.engine import Engine
 
 

@@ -7,7 +7,8 @@
 @date 2023-07-04
 """
 
-from settings import WIN_RES
+from core.constants.settings import BG_COLOR, WIN_RES
+from core.window.window import Window
 import moderngl as mg
 import pygame as pg
 import sys
@@ -22,14 +23,18 @@ class Engine:
         """
         Initializes the engine.
         """
-        pg.init()
-        pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 4)
-        pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 6)
-        pg.display.gl_set_attribute(
-            pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
-        )
+        self.window = Window(resolution=WIN_RES)
 
-        pg.display.set_mode(WIN_RES, flags=pg.OPENGL | pg.DOUBLEBUF)
+        # Clock
+        self.clock = None
+        self.delta_time = 0.0
+        self.is_running = True
+
+    def init_engine(self) -> None:
+        """
+        Initializes the engine
+        """
+        self.window.create_window()
 
         # Create the context
         self.ctx = mg.create_context()
@@ -38,9 +43,6 @@ class Engine:
 
         # Clock
         self.clock = pg.time.Clock()
-        self.delta_time = 0.0
-
-        self.is_running = True
 
     def update(self) -> None:
         """
@@ -54,8 +56,8 @@ class Engine:
         """
         Renders content to the window
         """
-        self.ctx.clear(0.0, 0.0, 0.0, 1.0)
-        pg.display.flip()
+        self.ctx.clear(color=BG_COLOR)
+        self.window.clear_window()
 
     def handle_events(self) -> None:
         """
@@ -66,17 +68,15 @@ class Engine:
                 event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
             ):
                 self.is_running = False
-                pg.quit()
-                sys.exit()
+                self.window.close_window()
 
     def run(self) -> None:
         """
         Main loop of the game
         """
+        self.init_engine()
+
         while self.is_running:
             self.handle_events()
             self.update()
             self.render()
-
-        pg.quit()
-        sys.exit()
