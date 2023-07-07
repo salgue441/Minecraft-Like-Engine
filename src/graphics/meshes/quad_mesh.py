@@ -6,7 +6,7 @@
 @date 2023-07-04
 """
 import numpy as np
-from render.meshes.base_mesh import BaseMesh
+from graphics.meshes.base_mesh import BaseMesh
 
 
 class QuadMesh(BaseMesh):
@@ -42,5 +42,5 @@ class QuadMesh(BaseMesh):
 
         colors = [(0, 1, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (1, 1, 0), (0, 0, 1)]
 
-        vertex_data = np.hstack([vertices, colors], dtype=np.float32)
+        vertex_data = np.hstack([vertices, colors], dtype="float32")
         return vertex_data

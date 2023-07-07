@@ -10,9 +10,10 @@
 # Project files
 from core.constants.settings import BG_COLOR, WIN_RES
 from core.window.window import Window
-from render.shader_program.shader_program import ShaderProgram
+from utils.shader_program.shader_program import ShaderProgram
 from render.scene.scene import Scene
 from player.player import Player
+from graphics.texture.texture import Texture
 
 # Libraries
 import moderngl as mg
@@ -52,6 +53,9 @@ class Engine:
         # Mouse overflow
         pg.event.set_grab(True)
         pg.mouse.set_visible(False)
+
+        # Textures
+        self.texture = Texture(app=self)
 
         # Player
         self.player = Player(app=self)

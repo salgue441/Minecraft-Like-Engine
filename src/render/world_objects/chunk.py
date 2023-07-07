@@ -8,7 +8,7 @@
 
 # Project files
 from core.constants.settings import CHUNK_VOLUME, CHUNK_SIZE, CHUNK_AREA
-from render.meshes.chunk_mesh import ChunkMesh
+from graphics.meshes.chunk_mesh import ChunkMesh
 
 # Libraries
 import numpy as np

@@ -50,7 +50,8 @@ class ShaderProgram:
         Sets the uniforms on init
         """
         self.chunk["m_proj"].write(self.player.m_projection)
-        self.chunk["m_model"].write(glm.mat4())
+        self.chunk["m_model"].write(glm.mat4(1.0))
+        self.chunk["u_texture_0"].value = 0
 
     def update(self) -> None:
         """

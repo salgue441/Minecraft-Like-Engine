@@ -7,8 +7,8 @@
 """
 
 # Project files
-from render.meshes.base_mesh import BaseMesh
-from render.meshes.chunk_mesh_builder import build_chunk_mesh
+from graphics.meshes.base_mesh import BaseMesh
+from graphics.meshes.chunk_mesh_builder import build_chunk_mesh
 
 # Libraries
 import numpy as np

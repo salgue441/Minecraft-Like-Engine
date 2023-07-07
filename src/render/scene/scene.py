@@ -6,7 +6,7 @@
 @date 2023-07-04
 """
 
-from render.meshes.quad_mesh import QuadMesh
+from graphics.meshes.quad_mesh import QuadMesh
 from render.world_objects.chunk import Chunk
 
 
