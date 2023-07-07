@@ -8,7 +8,7 @@
 
 # Project files
 from graphics.meshes.base_mesh import BaseMesh
-from graphics.meshes.chunk_mesh_builder import build_chunk_mesh
+from utils.chunk_builder.chunk_mesh_builder import build_chunk_mesh
 
 # Libraries
 import numpy as np
