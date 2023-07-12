@@ -7,6 +7,7 @@
 """
 
 from render.world.world import World
+from utils.block_marker.block_marker import BlockMarker
 
 
 class Scene:
@@ -17,15 +18,18 @@ class Scene:
         """
         self.app = app
         self.world = World(self.app)
+        self.block_marker = BlockMarker(self.world.block_handler)
 
     def update(self) -> None:
         """
         Updates the scene.
         """
         self.world.update()
+        self.block_marker.update()
 
     def render(self) -> None:
         """
         Renders the scene.
         """
         self.world.render()
+        self.block_marker.render()

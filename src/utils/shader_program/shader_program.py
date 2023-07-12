@@ -25,6 +25,7 @@ class ShaderProgram:
 
         # Shaders
         self.chunk = self.get_program(shader_name="chunk")
+        self.block_marker = self.get_program(shader_name="block_marker")
 
         # Uniforms
         self.set_uniforms_on_init()
@@ -49,12 +50,20 @@ class ShaderProgram:
         """
         Sets the uniforms on init
         """
+
+        # Chunk
         self.chunk["m_proj"].write(self.player.m_projection)
         self.chunk["m_model"].write(glm.mat4(1.0))
         self.chunk["u_texture_0"].value = 0
+
+        # Block marker
+        self.block_marker["m_proj"].write(self.player.m_projection)
+        self.block_marker["m_model"].write(glm.mat4(1.0))
+        self.block_marker["u_texture_0"].value = 0
 
     def update(self) -> None:
         """
         Updates the shader program
         """
         self.chunk["m_view"].write(self.player.m_view)
+        self.block_marker["m_view"].write(self.player.m_view)
