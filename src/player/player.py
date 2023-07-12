@@ -72,3 +72,17 @@ class Player(Camera):
         self.pitch += mouse_delta[1] * MOUSE_SENSITIVITY
 
         self.pitch = max(min(self.pitch, PITCH_MAX), -PITCH_MAX)
+
+    def handle_events(self, event) -> None:
+        """
+        Allows the user to add or remove blocks.
+        :param event: The event to be handled.
+        """
+        if event.type == pg.MOUSEBUTTONDOWN:
+            block_handler = self.app.scene.world.block_handler
+
+            if event.button == 1:
+                block_handler.set_block()
+
+            elif event.button == 3:
+                block_handler.switch_mode()

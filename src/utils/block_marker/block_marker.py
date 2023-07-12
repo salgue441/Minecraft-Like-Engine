@@ -32,7 +32,7 @@ class BlockMarker:
         if self.handler.block_id:
             if self.handler.interaction_mode:
                 self.position = (
-                    self.handler.block_world_position + self.handler.voxel_normal
+                    self.handler.block_world_position + self.handler.block_normal
                 )
 
             else:

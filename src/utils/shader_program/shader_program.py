@@ -54,7 +54,7 @@ class ShaderProgram:
         # Chunk
         self.chunk["m_proj"].write(self.player.m_projection)
         self.chunk["m_model"].write(glm.mat4(1.0))
-        self.chunk["u_texture_0"].value = 0
+        self.chunk["u_texture_array_0"].value = 1
 
         # Block marker
         self.block_marker["m_proj"].write(self.player.m_projection)

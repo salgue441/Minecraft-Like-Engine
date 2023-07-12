@@ -19,10 +19,15 @@ class Texture:
         self.app = app
         self.ctx = app.ctx
 
+        # Texture loading
         self.texture_0 = self.load("frame.png")
-        self.texture_0.use(location=0)
+        self.texture_array_0 = self.load("atlas.png", is_tex_array=True)
 
-    def load(self, file_name) -> mg.Texture:
+        # Texture usage
+        self.texture_0.use(location=0)
+        self.texture_array_0.use(location=1)
+
+    def load(self, file_name, is_tex_array=False) -> mg.Texture:
         """
         Loads the texture
         :param file_name: The name of the texture file
@@ -32,14 +37,23 @@ class Texture:
         image = pg.transform.flip(image, flip_x=True, flip_y=False)
         image_width, image_height = image.get_size()
 
-        texture = self.ctx.texture(
-            size=(image_width, image_height),
-            components=4,
-            data=pg.image.tostring(image, "RGBA", False),
-        )
+        if is_tex_array:
+            num_layers = 3 * image_height // image_width
+            image = self.app.ctx.texture_array(
+                size=(image_width, image_height // num_layers, num_layers),
+                components=4,
+                data=pg.image.tostring(image, "RGBA"),
+            )
 
-        texture.antisotropy = 32.0
-        texture.build_mipmaps()
-        texture.filter = (mg.LINEAR_MIPMAP_LINEAR, mg.LINEAR)
+        else:
+            image = self.ctx.texture(
+                size=(image_width, image_height),
+                components=4,
+                data=pg.image.tostring(image, "RGBA", False),
+            )
 
-        return texture
+        image.anisotropy = 32.0
+        image.build_mipmaps()
+        image.filter = (mg.NEAREST, mg.NEAREST)
+
+        return image

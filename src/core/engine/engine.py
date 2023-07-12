@@ -99,6 +99,8 @@ class Engine:
                 self.is_running = False
                 self.window.close_window()
 
+            self.player.handle_events(event)
+
     def run(self) -> None:
         """
         Main loop of the game

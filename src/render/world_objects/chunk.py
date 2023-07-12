@@ -61,7 +61,6 @@ class Chunk:
         """
         blocks = np.zeros(CHUNK_VOLUME, dtype=np.uint8)
         cx, cy, cz = glm.ivec3(self.position) * CHUNK_SIZE
-        rng = random.randrange(1, 100)
 
         for x in range(CHUNK_SIZE):
             wx = x + cx
@@ -74,7 +73,7 @@ class Chunk:
 
                 for y in range(local_height):
                     wy = y + cy
-                    blocks[x + CHUNK_SIZE * z + CHUNK_AREA * y] = rng
+                    blocks[x + CHUNK_SIZE * z + CHUNK_AREA * y] = wy + 2
 
         if np.any(blocks):
             self.is_empty = False
