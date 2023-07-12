@@ -218,3 +218,9 @@ class BlockHandler:
                     step_direction = 2
 
         return False
+
+    def update(self) -> None:
+        """
+        Updates the world.
+        """
+        self.raycast()

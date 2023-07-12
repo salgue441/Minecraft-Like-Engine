@@ -18,6 +18,7 @@ from core.constants.settings import (
 )
 
 from render.world_objects.chunk import Chunk
+from utils.block_handler.block_handler import BlockHandler
 
 
 class World:
@@ -30,6 +31,8 @@ class World:
         self.blocks = np.empty([WORLD_VOLUME, CHUNK_VOLUME], dtype=np.uint8)
         self.build_chunks()
         self.build_chunk_mesh()
+
+        self.block_handler = BlockHandler(self)
 
     def build_chunks(self) -> None:
         """
@@ -57,7 +60,7 @@ class World:
         """
         Updates the world
         """
-        pass
+        self.block_handler.update()
 
     def render(self) -> None:
         """

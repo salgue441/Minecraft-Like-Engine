@@ -5,6 +5,10 @@
 @version 1.0
 @date 2023-07-04
 """
+
+# Libraries
+import pygame as pg
+
 # Project files
 from camera.camera import Camera
 from core.constants.settings import (
@@ -13,9 +17,6 @@ from core.constants.settings import (
     PITCH_MAX,
     MOUSE_SENSITIVITY,
 )
-
-# Libraries
-import pygame as pg
 
 
 class Player(Camera):
@@ -68,6 +69,6 @@ class Player(Camera):
         )
 
         self.yaw += mouse_delta[0] * MOUSE_SENSITIVITY
-        self.pitch += mouse_delta[1] * MOUSE_SENSITIVITY 
+        self.pitch += mouse_delta[1] * MOUSE_SENSITIVITY
 
         self.pitch = max(min(self.pitch, PITCH_MAX), -PITCH_MAX)

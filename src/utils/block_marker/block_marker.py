@@ -31,7 +31,9 @@ class BlockMarker:
         """
         if self.handler.block_id:
             if self.handler.interaction_mode:
-                self.position = self.handler.block_world_position + self.handler.normal
+                self.position = (
+                    self.handler.block_world_position + self.handler.voxel_normal
+                )
 
             else:
                 self.position = self.handler.block_world_position
@@ -48,7 +50,9 @@ class BlockMarker:
         Gets the model matrix for the cube marker.
         :return: The model matrix for the cube marker.
         """
-        return glm.translate(glm.mat4(1.0), self.position)
+        return glm.translate(
+            glm.mat4(1.0), glm.vec3(self.position.x, self.position.y, self.position.z)
+        )
 
     def render(self) -> None:
         """

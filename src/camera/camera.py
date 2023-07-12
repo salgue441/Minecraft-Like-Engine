@@ -6,6 +6,10 @@
 @date 2023-07-04
 """
 
+
+# Libraries
+import glm
+
 # Project files
 from core.constants.settings import (
     ASPECT_RATIO,
@@ -14,9 +18,7 @@ from core.constants.settings import (
     PITCH_MAX,
     V_FOV,
 )
-
-# Libraries
-import glm
+from camera.frustum.frustum import Frustum
 
 
 class Camera:
@@ -37,6 +39,9 @@ class Camera:
 
         self.m_projection = glm.perspective(V_FOV, ASPECT_RATIO, NEAR, FAR)
         self.m_view = glm.mat4()
+
+        # Frustum planes
+        self.frustum = Frustum(self)
 
     def update(self) -> None:
         """

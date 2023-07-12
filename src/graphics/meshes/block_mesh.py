@@ -23,7 +23,10 @@ class BlockMesh(BaseMesh):
         self.ctx = self.app.ctx
         self.program = self.app.shader_program.block_marker
         self.vbo_format = "2f2 3f2"
-        self.attributes = ("in_text_coord_0", "in_position")
+        self.attributes = (
+            "in_text_coord_0",
+            "in_position",
+        )
         self.vao = self.get_vao()
 
     @staticmethod
