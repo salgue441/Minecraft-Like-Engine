@@ -7,6 +7,11 @@
 @date 2023-07-04
 """
 
+# Libraries
+import moderngl as mg
+import pygame as pg
+
+
 # Project files
 from core.constants.settings import BG_COLOR, WIN_RES
 from core.window.window import Window
@@ -15,9 +20,6 @@ from render.scene.scene import Scene
 from player.player import Player
 from graphics.texture.texture import Texture
 
-# Libraries
-import moderngl as mg
-import pygame as pg
 
 """
 @brief Main engine class for the game.
