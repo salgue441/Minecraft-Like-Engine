@@ -6,13 +6,15 @@
 @date 2023-07-04
 """
 
-# Project files
-from core.constants.settings import CHUNK_VOLUME, CHUNK_SIZE, CHUNK_AREA
-from graphics.meshes.chunk_mesh import ChunkMesh
 
 # Libraries
 import numpy as np
 import glm
+import random
+
+# Project files
+from core.constants.settings import CHUNK_VOLUME, CHUNK_SIZE, CHUNK_AREA
+from graphics.meshes.chunk_mesh import ChunkMesh
 
 
 class Chunk:
@@ -26,7 +28,7 @@ class Chunk:
         self.world = world
         self.position = position
         self.m_model = self.get_model_matrix()
-        self.voxels: np.array = None
+        self.blocks: np.array = None
         self.mesh: ChunkMesh = None
         self.is_empty = True
 
@@ -49,30 +51,31 @@ class Chunk:
         """
         self.mesh = ChunkMesh(self)
 
-    def build_voxels(self) -> np.array:
+    def build_blocks(self) -> np.array:
         """
-        Builds the voxels for the chunk
+        Builds the blocks for the chunk
         """
-        voxels = np.zeros(CHUNK_VOLUME, dtype=np.uint8)
+        blocks = np.zeros(CHUNK_VOLUME, dtype=np.uint8)
         cx, cy, cz = glm.ivec3(self.position) * CHUNK_SIZE
+        rng = random.randrange(1, 100)
 
         for x in range(CHUNK_SIZE):
             wx = x + cx
 
             for z in range(CHUNK_SIZE):
                 wz = z + cz
-                world_height = int(glm.simplex(glm.vec2(wx, wz) * 0.01) * 32 + 32)
 
+                world_height = int(glm.simplex(glm.vec2(wx, wz) * 0.01) * 32 + 32)
                 local_height = min(world_height - cy, CHUNK_SIZE)
 
                 for y in range(local_height):
                     wy = y + cy
-                    voxels[x + CHUNK_SIZE * z + CHUNK_AREA * y] = wy + 1
+                    blocks[x + CHUNK_SIZE * z + CHUNK_AREA * y] = rng
 
-        if np.any(voxels):
+        if np.any(blocks):
             self.is_empty = False
 
-        return voxels
+        return blocks
 
     def render(self) -> None:
         """

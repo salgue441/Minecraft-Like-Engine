@@ -26,18 +26,26 @@ class ChunkMesh(BaseMesh):
         self.ctx = self.app.ctx
         self.program = self.app.shader_program.chunk
 
-        self.vbo_format = "3u1 1u1 1u1 1u1 1u1"
+        self.vbo_format = "1u4"
         self.format_size = sum(int(fmt[:1]) for fmt in self.vbo_format.split())
-        self.attributes = ("in_position", "voxel_id", "face_id", "ao_id", "flip_id")
-        
+        self.attributes = ("packed_data",)
+        self.vao = self.get_vao()
+
+    def rebuild(self) -> None:
+        """
+        Rebuilds the chunk mesh.
+        """
         self.vao = self.get_vao()
 
     def get_vertex_data(self) -> np.array:
-        mesh = build_chunk_mesh(
-            chunk_voxels=self.chunk.voxels,
-            format_size=self.format_size,
-            chunk_pos=self.chunk.position,
-            world_voxels=self.chunk.world.voxels,
-        )
+        """
+        Gets the vertex data.
+        :return: The vertex data
+        """
 
-        return mesh
+        return build_chunk_mesh(
+            chunk_blocks=self.chunk.blocks,
+            format_size=self.format_size,
+            chunk_position=self.chunk.position,
+            world_blocks=self.chunk.world.blocks,
+        )

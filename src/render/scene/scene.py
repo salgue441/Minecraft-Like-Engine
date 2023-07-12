@@ -6,7 +6,6 @@
 @date 2023-07-04
 """
 
-from graphics.meshes.quad_mesh import QuadMesh
 from render.world.world import World
 
 
@@ -17,16 +16,16 @@ class Scene:
         :param app: The main application
         """
         self.app = app
-        self.chunk = World(self.app)
+        self.world = World(self.app)
 
     def update(self) -> None:
         """
         Updates the scene.
         """
-        self.chunk.update()
+        self.world.update()
 
     def render(self) -> None:
         """
         Renders the scene.
         """
-        self.chunk.render()
+        self.world.render()

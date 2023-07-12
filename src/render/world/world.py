@@ -27,7 +27,7 @@ class World:
         """
         self.app = app
         self.chunks = [None for _ in range(WORLD_VOLUME)]
-        self.voxels = np.empty([WORLD_VOLUME, CHUNK_VOLUME], dtype=np.uint8)
+        self.blocks = np.empty([WORLD_VOLUME, CHUNK_VOLUME], dtype=np.uint8)
         self.build_chunks()
         self.build_chunk_mesh()
 
@@ -42,9 +42,9 @@ class World:
                     chunk_index = x + WORLD_WIDTH * z + WORLD_AREA * y
                     self.chunks[chunk_index] = chunk
 
-                    # Chunk voxels
-                    self.voxels[chunk_index] = chunk.build_voxels()
-                    chunk.voxels = self.voxels[chunk_index]
+                    # Chunk blocks
+                    self.blocks[chunk_index] = chunk.build_blocks()
+                    chunk.blocks = self.blocks[chunk_index]
 
     def build_chunk_mesh(self) -> None:
         """

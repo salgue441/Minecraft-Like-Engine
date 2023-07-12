@@ -19,9 +19,6 @@ class BaseMesh:
         self.attributes: tuple[str, ...] = None
         self.vao = None
 
-    def get_vertex_data(self) -> np.array:
-        ...
-
     def get_vao(self) -> np.array:
         """
         Gets the vertex array object.
@@ -34,6 +31,9 @@ class BaseMesh:
         )
 
         return vao
+
+    def get_vertex_data(self) -> np.array:
+        ...
 
     def render(self) -> None:
         """

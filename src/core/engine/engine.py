@@ -36,6 +36,8 @@ class Engine:
         self.delta_time = 0.0
         self.is_running = True
 
+        self.init_engine()
+
     def init_engine(self) -> None:
         """
         Initializes the engine
@@ -99,7 +101,6 @@ class Engine:
         """
         Main loop of the game
         """
-        self.init_engine()
 
         while self.is_running:
             self.handle_events()
