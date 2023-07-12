@@ -10,11 +10,8 @@
 from core.constants.settings import (
     ASPECT_RATIO,
     FAR,
-    FOV_DEG,
-    H_FOV,
     NEAR,
     PITCH_MAX,
-    PLAYER_POSITION,
     V_FOV,
 )
 

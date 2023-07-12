@@ -23,7 +23,54 @@ from numba import uint8, njit
 
 
 @njit
-def to_uint8(x, y, z, voxel_id, face_id) -> uint8:
+def get_ao(local_pos, world_pos, world_voxels, plane) -> float:
+    """
+    Gets the ambient occlusion of the given voxel position
+    :param local_pos: The local voxel position
+    :param world_pos: The world voxel position
+    :param world_voxels: The world voxels
+    :param plane: The plane to check
+    :return: The ambient occlusion of the given voxel position
+    """
+
+    x, y, z = local_pos
+    wx, wy, wz = world_pos
+
+    if plane == "Y":
+        a = is_void((x, y, z - 1), (wx, wy, wz - 1), world_voxels)
+        b = is_void((x - 1, y, z - 1), (wx - 1, wy, wz - 1), world_voxels)
+        c = is_void((x - 1, y, z), (wx - 1, wy, wz), world_voxels)
+        d = is_void((x - 1, y, z + 1), (wx - 1, wy, wz + 1), world_voxels)
+        e = is_void((x, y, z + 1), (wx, wy, wz + 1), world_voxels)
+        f = is_void((x + 1, y, z + 1), (wx + 1, wy, wz + 1), world_voxels)
+        g = is_void((x + 1, y, z), (wx + 1, wy, wz), world_voxels)
+        h = is_void((x + 1, y, z - 1), (wx + 1, wy, wz - 1), world_voxels)
+
+    elif plane == "X":
+        a = is_void((x, y, z - 1), (wx, wy, wz - 1), world_voxels)
+        b = is_void((x, y - 1, z - 1), (wx, wy - 1, wz - 1), world_voxels)
+        c = is_void((x, y - 1, z), (wx, wy - 1, wz), world_voxels)
+        d = is_void((x, y - 1, z + 1), (wx, wy - 1, wz + 1), world_voxels)
+        e = is_void((x, y, z + 1), (wx, wy, wz + 1), world_voxels)
+        f = is_void((x, y + 1, z + 1), (wx, wy + 1, wz + 1), world_voxels)
+        g = is_void((x, y + 1, z), (wx, wy + 1, wz), world_voxels)
+        h = is_void((x, y + 1, z - 1), (wx, wy + 1, wz - 1), world_voxels)
+
+    else:
+        a = is_void((x - 1, y, z), (wx - 1, wy, wz), world_voxels)
+        b = is_void((x - 1, y - 1, z), (wx - 1, wy - 1, wz), world_voxels)
+        c = is_void((x, y - 1, z), (wx, wy - 1, wz), world_voxels)
+        d = is_void((x + 1, y - 1, z), (wx + 1, wy - 1, wz), world_voxels)
+        e = is_void((x + 1, y, z), (wx + 1, wy, wz), world_voxels)
+        f = is_void((x + 1, y + 1, z), (wx + 1, wy + 1, wz), world_voxels)
+        g = is_void((x, y + 1, z), (wx, wy + 1, wz), world_voxels)
+        h = is_void((x - 1, y + 1, z), (wx - 1, wy + 1, wz), world_voxels)
+
+    return ((a + b + c), (g + h + a), (e + f + g), (c + d + e))
+
+
+@njit
+def to_uint8(x, y, z, voxel_id, face_id, ao_id, flip_id) -> uint8:
     """
     Converts the given parameters to a uint8
     :param x: The x coordinate
@@ -31,9 +78,19 @@ def to_uint8(x, y, z, voxel_id, face_id) -> uint8:
     :param z: The z coordinate
     :param voxel_id: The voxel id
     :param face_id: The face id
+    :param ao_id: The ambient occlusion id
+    :param flip_id: The flip id (0 or 1)
     :return: The uint8 value of the given parameters
     """
-    return uint8(x), uint8(y), uint8(z), uint8(voxel_id), uint8(face_id)
+    return (
+        uint8(x),
+        uint8(y),
+        uint8(z),
+        uint8(voxel_id),
+        uint8(face_id),
+        uint8(ao_id),
+        uint8(flip_id),
+    )
 
 
 @njit
@@ -102,7 +159,7 @@ def add_data(vertex_data, index, *vertices) -> int:
 @njit
 def build_chunk_mesh(chunk_voxels, format_size, chunk_pos, world_voxels) -> np.array:
     """
-    Builds the chunk mesh
+    Builds the chunk mesh from the given chunk voxels. The chunk mesh is a numpy array of uint8 values.
     :param chunk_voxels: The chunk voxels
     :param format_size: The format size
     :param chunk_pos: The chunk position
@@ -128,56 +185,116 @@ def build_chunk_mesh(chunk_voxels, format_size, chunk_pos, world_voxels) -> np.a
 
                 # top face
                 if is_void((x, y + 1, z), (wx, wy + 1, wz), world_voxels):
-                    v0 = to_uint8(x, y + 1, z, voxel_id, 0)
-                    v1 = to_uint8(x + 1, y + 1, z, voxel_id, 0)
-                    v2 = to_uint8(x + 1, y + 1, z + 1, voxel_id, 0)
-                    v3 = to_uint8(x, y + 1, z + 1, voxel_id, 0)
+                    ao = get_ao(
+                        (x, y + 1, z), (wx, wy + 1, wz), world_voxels, plane="Y"
+                    )
 
-                    index = add_data(vertex_data, index, v0, v3, v2, v0, v2, v1)
+                    flip_id = ao[1] + ao[3] > ao[0] + ao[2]
+
+                    v0 = to_uint8(x, y + 1, z, voxel_id, 0, ao[0], flip_id)
+                    v1 = to_uint8(x + 1, y + 1, z, voxel_id, 0, ao[1], flip_id)
+                    v2 = to_uint8(x + 1, y + 1, z + 1, voxel_id, 0, ao[2], flip_id)
+                    v3 = to_uint8(x, y + 1, z + 1, voxel_id, 0, ao[3], flip_id)
+
+                    if flip_id:
+                        index = add_data(vertex_data, index, v1, v0, v3, v1, v3, v2)
+
+                    else:
+                        index = add_data(vertex_data, index, v0, v3, v2, v0, v2, v1)
 
                 # bottom face
                 if is_void((x, y - 1, z), (wx, wy - 1, wz), world_voxels):
-                    v0 = to_uint8(x, y, z, voxel_id, 1)
-                    v1 = to_uint8(x + 1, y, z, voxel_id, 1)
-                    v2 = to_uint8(x + 1, y, z + 1, voxel_id, 1)
-                    v3 = to_uint8(x, y, z + 1, voxel_id, 1)
+                    ao = get_ao(
+                        (x, y - 1, z), (wx, wy - 1, wz), world_voxels, plane="Y"
+                    )
 
-                    index = add_data(vertex_data, index, v0, v2, v3, v0, v1, v2)
+                    flip_id = ao[1] + ao[3] > ao[0] + ao[2]
+
+                    v0 = to_uint8(x, y, z, voxel_id, 1, ao[0], flip_id)
+                    v1 = to_uint8(x + 1, y, z, voxel_id, 1, ao[1], flip_id)
+                    v2 = to_uint8(x + 1, y, z + 1, voxel_id, 1, ao[2], flip_id)
+                    v3 = to_uint8(x, y, z + 1, voxel_id, 1, ao[3], flip_id)
+
+                    if flip_id:
+                        index = add_data(vertex_data, index, v1, v3, v0, v1, v2, v3)
+
+                    else:
+                        index = add_data(vertex_data, index, v0, v2, v3, v0, v1, v2)
 
                 # right face
                 if is_void((x + 1, y, z), (wx + 1, wy, wz), world_voxels):
-                    v0 = to_uint8(x + 1, y, z, voxel_id, 2)
-                    v1 = to_uint8(x + 1, y + 1, z, voxel_id, 2)
-                    v2 = to_uint8(x + 1, y + 1, z + 1, voxel_id, 2)
-                    v3 = to_uint8(x + 1, y, z + 1, voxel_id, 2)
+                    ao = get_ao(
+                        (x + 1, y, z), (wx + 1, wy, wz), world_voxels, plane="X"
+                    )
 
-                    index = add_data(vertex_data, index, v0, v1, v2, v0, v2, v3)
+                    flip_id = ao[1] + ao[3] > ao[0] + ao[2]
+
+                    v0 = to_uint8(x + 1, y, z, voxel_id, 2, ao[0], flip_id)
+                    v1 = to_uint8(x + 1, y + 1, z, voxel_id, 2, ao[1], flip_id)
+                    v2 = to_uint8(x + 1, y + 1, z + 1, voxel_id, 2, ao[2], flip_id)
+                    v3 = to_uint8(x + 1, y, z + 1, voxel_id, 2, ao[3], flip_id)
+
+                    if flip_id:
+                        index = add_data(vertex_data, index, v3, v0, v1, v3, v1, v2)
+
+                    else:
+                        index = add_data(vertex_data, index, v0, v1, v2, v0, v2, v3)
 
                 # left face
                 if is_void((x - 1, y, z), (wx - 1, wy, wz), world_voxels):
-                    v0 = to_uint8(x, y, z, voxel_id, 3)
-                    v1 = to_uint8(x, y + 1, z, voxel_id, 3)
-                    v2 = to_uint8(x, y + 1, z + 1, voxel_id, 3)
-                    v3 = to_uint8(x, y, z + 1, voxel_id, 3)
+                    ao = get_ao(
+                        (x - 1, y, z), (wx - 1, wy, wz), world_voxels, plane="X"
+                    )
 
-                    index = add_data(vertex_data, index, v0, v2, v1, v0, v3, v2)
+                    flip_id = ao[1] + ao[3] > ao[0] + ao[2]
+
+                    v0 = to_uint8(x, y, z, voxel_id, 3, ao[0], flip_id)
+                    v1 = to_uint8(x, y + 1, z, voxel_id, 3, ao[1], flip_id)
+                    v2 = to_uint8(x, y + 1, z + 1, voxel_id, 3, ao[2], flip_id)
+                    v3 = to_uint8(x, y, z + 1, voxel_id, 3, ao[3], flip_id)
+
+                    if flip_id:
+                        index = add_data(vertex_data, index, v3, v1, v0, v3, v2, v1)
+
+                    else:
+                        index = add_data(vertex_data, index, v0, v2, v1, v0, v3, v2)
 
                 # front face
                 if is_void((x, y, z + 1), (wx, wy, wz + 1), world_voxels):
-                    v0 = to_uint8(x, y, z + 1, voxel_id, 5)
-                    v1 = to_uint8(x, y + 1, z + 1, voxel_id, 5)
-                    v2 = to_uint8(x + 1, y + 1, z + 1, voxel_id, 5)
-                    v3 = to_uint8(x + 1, y, z + 1, voxel_id, 5)
+                    ao = get_ao(
+                        (x, y, z + 1), (wx, wy, wz + 1), world_voxels, plane="Z"
+                    )
 
-                    index = add_data(vertex_data, index, v0, v2, v1, v0, v3, v2)
+                    flip_id = ao[1] + ao[3] > ao[0] + ao[2]
+
+                    v0 = to_uint8(x, y, z + 1, voxel_id, 5, ao[0], flip_id)
+                    v1 = to_uint8(x, y + 1, z + 1, voxel_id, 5, ao[1], flip_id)
+                    v2 = to_uint8(x + 1, y + 1, z + 1, voxel_id, 5, ao[2], flip_id)
+                    v3 = to_uint8(x + 1, y, z + 1, voxel_id, 5, ao[3], flip_id)
+
+                    if flip_id:
+                        index = add_data(vertex_data, index, v3, v1, v0, v3, v2, v1)
+
+                    else:
+                        index = add_data(vertex_data, index, v0, v2, v1, v0, v3, v2)
 
                 # back face
                 if is_void((x, y, z - 1), (wx, wy, wz - 1), world_voxels):
-                    v0 = to_uint8(x, y, z, voxel_id, 4)
-                    v1 = to_uint8(x, y + 1, z, voxel_id, 4)
-                    v2 = to_uint8(x + 1, y + 1, z, voxel_id, 4)
-                    v3 = to_uint8(x + 1, y, z, voxel_id, 4)
+                    ao = get_ao(
+                        (x, y, z - 1), (wx, wy, wz - 1), world_voxels, plane="Z"
+                    )
 
-                    index = add_data(vertex_data, index, v0, v1, v2, v0, v2, v3)
+                    flip_id = ao[1] + ao[3] > ao[0] + ao[2]
+
+                    v0 = to_uint8(x, y, z, voxel_id, 4, ao[0], flip_id)
+                    v1 = to_uint8(x, y + 1, z, voxel_id, 4, ao[1], flip_id)
+                    v2 = to_uint8(x + 1, y + 1, z, voxel_id, 4, ao[2], flip_id)
+                    v3 = to_uint8(x + 1, y, z, voxel_id, 4, ao[3], flip_id)
+
+                    if flip_id:
+                        index = add_data(vertex_data, index, v3, v0, v1, v3, v1, v2)
+
+                    else:
+                        index = add_data(vertex_data, index, v0, v1, v2, v0, v2, v3)
 
     return vertex_data[: index + 1]

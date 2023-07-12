@@ -40,6 +40,6 @@ class Texture:
 
         texture.antisotropy = 32.0
         texture.build_mipmaps()
-        texture.filter = (mg.NEAREST, mg.NEAREST)
+        texture.filter = (mg.LINEAR_MIPMAP_LINEAR, mg.LINEAR)
 
         return texture
